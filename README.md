@@ -1,17 +1,17 @@
 Quantile Function
 ===
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependencies][dependencies-image]][dependencies-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][codecov-image]][codecov-url] [![Dependencies][dependencies-image]][dependencies-url]
 
 > [Beta](https://en.wikipedia.org/wiki/Beta_distribution) distribution [quantile function](https://en.wikipedia.org/wiki/Quantile_function).
 
 The [quantile function](https://en.wikipedia.org/wiki/Quantile_function) for a [Beta](https://en.wikipedia.org/wiki/Beta_distribution) random variable is
 
-<div class="equation" align="center" data-raw-text="" data-equation="eq:quantile_function">
-	<img src="" alt="Quantile function for a Beta distribution.">
+<div class="equation" align="center" data-raw-text="Q(p;\alpha,\beta)\,=\,\inf\left\{ x\in [0,1] : p \le F(x;\alpha,\beta) \right\}" data-equation="eq:quantile_function">
+	<img src="https://cdn.rawgit.com/distributions-io/beta-quantile/15f26b645f144543b3fcb91e329a9277547b8704/docs/img/eqn.svg" alt="Quantile function for a Beta distribution.">
 	<br>
 </div>
 
-for `0 <= p < 1`, where `alpha` is the first shape parameter and `beta` is the second shape parameter.
+for `0 <= p < 1`, where `alpha` is the first shape parameter and `beta` is the second shape parameter and `F(x;alpha,beta)` denotes the cumulative distribution function of a beta random variable with parameters `alpha` and `beta`.
 
 ## Installation
 
@@ -40,15 +40,21 @@ var matrix = require( 'dstructs-matrix' ),
 	i;
 
 out = quantile( 0.25 );
-// returns
+// returns 0.25
 
 x = [ 0, 0.2, 0.4, 0.6, 0.8, 1 ];
-out = quantile( x );
-// returns [...]
+out = quantile( x, {
+	'alpha': 2,
+	'beta': 2
+});
+// returns [ 0, ~0.287, ~0.433, ~0.567, ~0.713, 1 ]
 
 x = new Float32Array( x );
-out = quantile( x );
-// returns Float64Array( [...] )
+out = quantile( x, {
+	'alpha': 2,
+	'beta': 2
+});
+// returns Float64Array( [0,~0.287,~0.433,~0.567,~0.713,1] )
 
 x = new Float32Array( 6 );
 for ( i = 0; i < 6; i++ ) {
@@ -61,11 +67,14 @@ mat = matrix( x, [3,2], 'float32' );
 	  4/5  5/6 ]
 */
 
-out = quantile( mat );
+out = quantile( mat, {
+	'alpha': 2,
+	'beta': 2
+});
 /*
-	[
-
-	   ]
+	[  0     ~0.259
+	  ~0.387 ~0.5
+	  ~0.613 ~0.741 ]
 */
 ```
 
@@ -88,7 +97,7 @@ var out = quantile( x, {
 	'alpha': 5,
 	'beta': 8
 });
-// returns [...]
+// returns [ 0, ~0.269, ~0.344, ~0.414, ~0.497, 1 ]
 ```
 
 For non-numeric `arrays`, provide an accessor `function` for accessing `array` values.
@@ -108,9 +117,11 @@ function getValue( d, i ) {
 }
 
 var out = quantile( data, {
+	'alpha': 2,
+	'beta': 2,
 	'accessor': getValue
 });
-// returns [...]
+// returns [ 0, ~0.287, ~0.433, ~0.567, ~0.713, 1 ]
 ```
 
 
@@ -127,17 +138,19 @@ var data = [
 ];
 
 var out = quantile( data, {
+	'alpha': 2,
+	'beta': 2,
 	'path': 'x/1',
 	'sep': '/'
 });
 /*
 	[
-		{'x':[0,]},
-		{'x':[1,]},
-		{'x':[2,]},
-		{'x':[3,]},
-		{'x':[4,]},
-		{'x':[5,]}
+		{'x':[0,0]},
+		{'x':[1,~0.287]},
+		{'x':[2,~0.433]},
+		{'x':[3,~0.567]},
+		{'x':[4,~0.713]},
+		{'x':[5,1]}
 	]
 */
 
@@ -155,13 +168,13 @@ x = new Float32Array( [0.2,0.4,0.6,0.8] );
 out = quantile( x, {
 	'dtype': 'int32'
 });
-// returns Int32Array( [...] )
+// returns Int32Array( [0,0,0,0] )
 
 // Works for plain arrays, as well...
 out = quantile( [0.2,0.4,0.6,0.8], {
 	'dtype': 'uint8'
 });
-// returns Uint8Array( [...] )
+// returns Uint8Array( [0,0,0,0] )
 ```
 
 By default, the function returns a new data structure. To mutate the input data structure (e.g., when input values can be discarded or when optimizing memory usage), set the `copy` option to `false`.
@@ -176,9 +189,11 @@ var bool,
 x = [ 0, 0.2, 0.4, 0.6, 0.8, 1 ];
 
 out = quantile( x, {
+	'alpha': 2,
+	'beta': 2,
 	'copy': false
 });
-// returns [...]
+// returns [ 0, ~0.287, ~0.433, ~0.567, ~0.713, 1 ]
 
 bool = ( x === out );
 // returns true
@@ -195,12 +210,14 @@ mat = matrix( x, [3,2], 'float32' );
 */
 
 out = quantile( mat, {
+	'alpha': 2,
+	'beta': 2,
 	'copy': false
 });
 /*
-	[
-
-	   ]
+	[  0     ~0.259
+	  ~0.387 ~0.5
+	  ~0.613 ~0.741 ]
 */
 
 bool = ( mat === out );
@@ -389,8 +406,8 @@ Copyright &copy; 2015. The [Compute.io](https://github.com/compute-io) Authors.
 [travis-image]: http://img.shields.io/travis/distributions-io/beta-quantile/master.svg
 [travis-url]: https://travis-ci.org/distributions-io/beta-quantile
 
-[coveralls-image]: https://img.shields.io/coveralls/distributions-io/beta-quantile/master.svg
-[coveralls-url]: https://coveralls.io/r/distributions-io/beta-quantile?branch=master
+[codecov-image]: https://img.shields.io/codecov/github/distributions-io/beta-quantile/master.svg
+[codecov-url]: https://codecov.io/github/distributions-io/beta-quantile?branch=master
 
 [dependencies-image]: http://img.shields.io/david/distributions-io/beta-quantile.svg
 [dependencies-url]: https://david-dm.org/distributions-io/beta-quantile
